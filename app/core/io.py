@@ -1,11 +1,11 @@
 import logging
 import os
-from datetime import datetime
+# from datetime import datetime
 import pandas as pd
 
 import cloudpickle
 from dotenv import load_dotenv
-from pandas.io.json import build_table_schema
+# from pandas.io.json import build_table_schema
 
 load_dotenv()
 
