@@ -4,9 +4,11 @@ import sys
 
 import uvicorn
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+import requests
 
-from model import ModelHandler
+from core.dtypes import Message
+from handler import ModelHandler
 
 load_dotenv()
 
@@ -22,21 +24,48 @@ logger.addHandler(log_handler)
 logger.setLevel(os.getenv('APP_LOG_LEVEL'))  # type: ignore
 logger.info('App module is being initialized.')
 
+# Инициализируем объект-хендлер для модели
+handler = ModelHandler()
 
+# Основной объект приложения
 app = FastAPI()
 
-ModelHandler()
 
-
-@app.get('/')
+# Healthcheck uri
+@app.get('/healthcheck', response_model=Message)
 def healthcheck():
-    return {'status': 'Service is up :)'}
+    return Message(message='Service seems to be up :)')
 
 
-@app.post('/predict')
-def predict():
-    return '/predict hadler called.'
+# Основной uri для получения предсказаний модели
+@app.post('/predict', response_model=handler.output_pydantic_model)
+def predict(
+    # Используем динамически сгенерированный pydantic класс для валидации
+    # входного json с помощью стандартной магии FasAPI
+    input: handler.input_pydantic_model  # type: ignore
+):
+    try:
+        response = handler.predict(input)
+        logger.info(
+            'Predict handler called. Input data (validated): '
+            f'{input.model_dump_json()}, generated prediction: '
+            f'{response.model_dump_json()}'
+        )
+        return response
+    except Exception as exc:
+        logger.error(
+            'While predicting for input data (validated): \n'
+            f'{input.model_dump_json(indent=4)} \n '
+            f'the following exception was raised: \n {exc} \n',
+            exc_info=True
+        )
+        raise HTTPException(
+            status_code=requests.codes['/o\\'],
+            detail='Internal server error'
+        )
 
+
+logger.info('App module initialization completed.')
 
 if __name__ == "__main__":
     uvicorn.run(
