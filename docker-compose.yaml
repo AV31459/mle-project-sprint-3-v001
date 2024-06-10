@@ -1,0 +1,10 @@
+services:
+  fastapi_app:  
+    env_file: 
+      - .env
+    build:
+      dockerfile: Dockerfile_app
+    ports:
+      - "${APP_PORT_EXTERNAL}:${APP_PORT_DOCKER}"
+    volumes:
+      - ./models:/fastapi_app/models

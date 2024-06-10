@@ -1,0 +1,10 @@
+FROM python:3.10-slim
+
+COPY . ./fastapi_app
+
+WORKDIR fastapi_app 
+
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+CMD uvicorn --app-dir=app --reload --port=${APP_PORT_DOCKER} \
+--host=${APP_HOST_DOCKER} app:app

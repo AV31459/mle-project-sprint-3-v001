@@ -1,0 +1,6 @@
+venv/
+temp/
+tmp/
+services/
+models/
+.env
