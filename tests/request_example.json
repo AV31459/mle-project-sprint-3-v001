@@ -1,0 +1,16 @@
+{
+  "build_year": 1957,
+  "building_type": 1,
+  "ceiling_height": 3,
+  "flats_count": 334,
+  "floor": 4,
+  "floors_total": 8,
+  "has_elevator": true,
+  "is_apartment": false,
+  "kitchen_area": 8.1000003815,
+  "latitude": 55.7485237122,
+  "living_area": 33.4000015259,
+  "longitude": 37.500415802,
+  "rooms": 2,
+  "total_area": 54.4000015259
+}
