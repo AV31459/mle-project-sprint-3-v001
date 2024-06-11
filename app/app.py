@@ -2,10 +2,11 @@ import logging
 import os
 import sys
 
+import requests
 import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
-import requests
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from core.dtypes import Message
 from handler import ModelHandler
@@ -29,6 +30,9 @@ handler = ModelHandler()
 
 # Основной объект приложения
 app = FastAPI()
+
+# Инструментатор для prometheus
+Instrumentator().instrument(app).expose(app)
 
 
 # Healthcheck uri
@@ -70,6 +74,6 @@ logger.info('App module initialization completed.')
 if __name__ == "__main__":
     uvicorn.run(
         app,
-        host=os.getenv('APP_HOST_DOCKER'),  # type: ignore
-        port=int(os.getenv('APP_PORT_DOCKER'))  # type: ignore
+        host=os.getenv('HOST_EXTERNAL'),  # type: ignore
+        port=int(os.getenv('APP_PORT_EXTERNAL'))  # type: ignore
     )

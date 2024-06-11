@@ -1,10 +1,30 @@
 services:
-  fastapi_app:  
-    env_file: 
+  fastapi_app:
+    env_file:
       - .env
     build:
       dockerfile: Dockerfile_app
     ports:
-      - "${APP_PORT_EXTERNAL}:${APP_PORT_DOCKER}"
+      - "${HOST_EXTERNAL}:${APP_PORT_EXTERNAL}:${APP_PORT_DOCKER}"
     volumes:
       - ./models:/fastapi_app/models
+    hostname: fastapi_app
+
+  prometheus:
+    image: prom/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "${HOST_EXTERNAL}:${PROMETHEUS_PORT_EXTERNAL}:9090"
+    volumes:
+      - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    hostname: prometheus
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "${HOST_EXTERNAL}:${GRAFANA_PORT_EXTERNAL}:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_USER_PASSWORD}
+    hostname: grafana
