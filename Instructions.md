@@ -27,7 +27,7 @@ $ vi .env
 ```
 $ uvicorn --app-dir=app app:app --host=127.0.0.1 --port=7000
 ```
-Альтернативный способ (NB: в `.env` должны быть дополнительно заданы HOST_EXTERNAL, APP_PORT_EXTERNAL)
+Альтернативный способ (в`.env` должны быть заданы HOST_EXTERNAL, APP_PORT_EXTERNAL)
 ```
 $ python app/app.py
 ```
