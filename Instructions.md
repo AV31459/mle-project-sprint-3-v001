@@ -71,6 +71,13 @@ $ docker compose -f docker-compose.single_app.yaml up --build
 - GRAFANA_USER
 - GRAFANA_USER_PASSWORD
 
+**NB: Так как peomehteus не поддерживает переменные окружения в конфигурационных файлах, убедитесть, что значения порта микросервиса в конфигурационном файле `prometheus/prometheus.yml` соответсвтует значению APP_PORT_DOCKER, указанному в `.env`:**
+```
+    static_configs:
+    - targets:
+      - fastapi_app:7000 <--- должно совпадать с APP_PORT_DOCKER
+```
+
 В корне проекта выполняем команду:
 ```
 $ docker compose up --build
