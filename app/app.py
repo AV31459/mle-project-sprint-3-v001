@@ -7,6 +7,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Counter, Histogram
 
 from core.dtypes import Message
 from handler import ModelHandler
@@ -34,7 +35,18 @@ app = FastAPI()
 # Инструментатор для prometheus
 Instrumentator().instrument(app).expose(app)
 
-# Здесь будут дополнительные метрики
+# Метрика: гистограмма предскзаний модели
+metric_prediction_values = Histogram(
+    'app_prediction_values',
+    'Histogram of prediction values',
+    buckets=[i * 1.e6 for i in range(30)]
+)
+
+# Метрика: счетчик необработанных исключений
+metric_prediction_exception_counter = Counter(
+    'app_prediction_exception_counter',
+    'Number of unhandled prediction exceptions'
+)
 
 
 # Healthcheck uri
@@ -52,6 +64,9 @@ def predict(
 ):
     try:
         response = handler.predict(input)
+        metric_prediction_values.observe(
+            getattr(response, handler.output_label)
+        )
         logger.info(
             'Predict handler called. Input data (validated): '
             f'{input.model_dump_json()}, generated prediction: '
@@ -59,6 +74,7 @@ def predict(
         )
         return response
     except Exception as exc:
+        metric_prediction_exception_counter.inc()
         logger.error(
             'While predicting for input data (validated): \n'
             f'{input.model_dump_json(indent=4)} \n '

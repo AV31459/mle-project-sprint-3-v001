@@ -32,33 +32,36 @@ class ModelHandler:
         # Проверяем, что загруженная модель корректно работает
         self._check_model()
 
+        # Название столбца с предсказанием модели
+        self.output_label = self._y_example.columns[0]
+
         # Генерируем pydantic классы для входных/выходных данных
-        self._input_pydantc_model: PydanticBaseModel = (
+        self.input_pydantic_model: PydanticBaseModel = (
             build_pydantic_model('InputData', self._x_example)
         )
-        self._output_pydantic_model: PydanticBaseModel = (
+        self.output_pydantic_model: PydanticBaseModel = (
             build_pydantic_model('OutputData', self._y_example)
         )
 
         # Генерируем примеры входных/выходных данных, параллельно
         # проверяем корректность работы созданных pydantic классов
         self._input_example: dict = (
-            self._input_pydantc_model
+            self.input_pydantic_model
             .model_validate(self._x_example.iloc[0].to_dict())
             .model_dump()
         )
         self._output_example: dict = (
-            self._output_pydantic_model
+            self.output_pydantic_model
             .model_validate(self._y_example.iloc[0].to_dict())
             .model_dump()
         )
 
         # Добавляем сгенерированные примеры в конфигурацию pydantic классов
         # для их отображения в документации
-        self._input_pydantc_model.model_config = {
+        self.input_pydantic_model.model_config = {
             'json_schema_extra': {'examples': [self._input_example]}
         }
-        self._output_pydantic_model.model_config = {
+        self.output_pydantic_model.model_config = {
             'json_schema_extra': {'examples': [self._output_example]}
         }
 
@@ -80,16 +83,6 @@ class ModelHandler:
         )
         raise RuntimeError('Model check failed.')
 
-    @property
-    def input_pydantic_model(self) -> PydanticBaseModel:
-        """Pydantic model class corresponding to 'x_example' dataframe."""
-        return self._input_pydantc_model
-
-    @property
-    def output_pydantic_model(self) -> PydanticBaseModel:
-        """Pydantic model class corresponding to 'y_example' dataframe."""
-        return self._output_pydantic_model
-
     def predict(self, input: PydanticBaseModel) -> PydanticBaseModel:
         """Get model inference for input data."""
         # Конвертируем входные данные из pydantic в pd.DataFrame
@@ -98,10 +91,6 @@ class ModelHandler:
             columns=self._x_example.columns
         )
         # Резульат возвращаем в формате pydantic
-        return self._output_pydantic_model.model_validate(
-            pd.DataFrame(
-                self._model.predict(input_df),
-                columns=self._y_example.columns
-            ).iloc[0]
-            .to_dict()
+        return self.output_pydantic_model.model_validate(
+            {self.output_label: self._model.predict(input_df)[0]}
         )
