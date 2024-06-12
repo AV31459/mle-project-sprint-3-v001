@@ -59,7 +59,7 @@ $ docker container run -it -p 7000:7000 -v ./models:/fastapi_app/models --env-fi
 В дополенение к переменным, указанным выше, в файле `.env` должен быть заданы HOST_EXTERNAL, APP_PORT_EXTERNAL.    
 В корне проекта выполняем команду:
 ```
-$ docker compose -f docker-compose.single_app.yaml up --build
+$ docker compose -f docker-compose.single-app.yaml up --build
 ```
 Пример json-запроса, корректно обрабатываемого сервисом, находится в файле `tests/request_example.json`, соответствующая curl команда приведена выше.
 

@@ -34,6 +34,8 @@ app = FastAPI()
 # Инструментатор для prometheus
 Instrumentator().instrument(app).expose(app)
 
+# Здесь будут дополнительные метрики
+
 
 # Healthcheck uri
 @app.get('/healthcheck', response_model=Message)
