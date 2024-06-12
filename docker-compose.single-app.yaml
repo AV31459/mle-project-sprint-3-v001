@@ -5,6 +5,6 @@ services:
     build:
       dockerfile: Dockerfile_app
     ports:
-      - "${HOST_EXTERNAL}:${APP_PORT_EXTERNAL}:${APP_PORT_DOCKER}"
+      - ${HOST_EXTERNAL}:${APP_PORT_EXTERNAL}:${APP_PORT_DOCKER}
     volumes:
       - ./models:/fastapi_app/models
